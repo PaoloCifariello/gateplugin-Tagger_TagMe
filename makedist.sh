@@ -1,6 +1,6 @@
 #!/bin/bash
 
-name=gateplugin-Tagger_TagMe
+name=gateplugin-Tagger_TagMeWrapper
 tmpdir=/tmp
 curdir=`pwd -P`
 version=`perl -n -e 'if (/VERSION="([^"]+)"/) { print $1;}' < $curdir/creole.xml`

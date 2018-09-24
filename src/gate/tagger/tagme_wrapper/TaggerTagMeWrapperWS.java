@@ -151,27 +151,27 @@ public class TaggerTagMeWrapperWS extends AbstractLanguageAnalyser {
   // }
 
   // protected String languageCode = "en";
-  protected int max_num_entities = 30;
+  protected Integer max_num_entities = 30;
 
   @RunTime
   @CreoleParameter(comment = "Max num entities: Maximum number of different annotations in the result", defaultValue = "30")
-  public void setEpsilon(int value) {
+  public void setMaxNumEntities(Integer value) {
     max_num_entities = value;
   }
 
-  public int getEpsilon() {
+  public Integer getMaxNumEntities() {
     return max_num_entities;
   }
 
-  protected int minCount = 1;
+  protected Integer minCount = 1;
 
   @RunTime
   @CreoleParameter(comment = "Minimum number of times an entity should appear in text to be considered valid", defaultValue = "1")
-  public void setMinCount(int value) {
+  public void setMinCount(Integer value) {
     minCount = value;
   }
 
-  public Double getMinCount() {
+  public Integer getMinCount() {
     return minCount;
   }
 
@@ -241,13 +241,13 @@ public class TaggerTagMeWrapperWS extends AbstractLanguageAnalyser {
         fm.put("link_probability", tagmeAnn.link_probability);
         fm.put("pr_score", tagmeAnn.pr_score);
 
-        if (tagmeAnn.title == null) {
+        if (tagmeAnn.entity_name == null) {
           throw new GateRuntimeException("Odd: got a null title from the TagMe service" + tagmeAnn);
         } else {
-          fm.put("inst", "http://dbpedia.org/resource/" + recodeForDbp38(tagmeAnn.title));
+          fm.put("inst", "http://dbpedia.org/resource/" + recodeForDbp38(tagmeAnn.entity_name));
         }
         try {
-          gate.Utils.addAnn(outputAS, from + tagmeAnn.begin, from + tagmeAnn.end, getOutputAnnotationType(), fm);
+          gate.Utils.addAnn(outputAS, from + tagmeAnnOcc.begin, from + tagmeAnnOcc.end, getOutputAnnotationType(), fm);
         } catch (Exception ex) {
           System.err.println("Got an exception in document " + doc.getName() + ": " + ex.getLocalizedMessage());
           ex.printStackTrace(System.err);
@@ -267,7 +267,7 @@ public class TaggerTagMeWrapperWS extends AbstractLanguageAnalyser {
 
     req.addHeader("Content-Type", "application/x-www-form-urlencoded");
     req.bodyForm(
-        Form.form().add("text", text).add("min_count", min_count).add("max_num_entities", max_num_entities).build(),
+        Form.form().add("text", text).add("min_count", getMinCount().toString()).add("max_num_entities", getMaxNumEntities().toString()).build(),
         Consts.UTF_8);
     logger.debug("Request is " + req);
     Response res = null;
@@ -319,7 +319,7 @@ public class TaggerTagMeWrapperWS extends AbstractLanguageAnalyser {
 
     @Override
     public String toString() {
-      return "TagMeAnnotation(id=" + id + ",rho=" + rho + ",title=" + title + ",offset=" + start + ", end=" + end + ")";
+      return "TagMeAnnotation(id=" + entity_id + ",rho=" + score + ",title=" + entity_name + ")";
     }
   }
 
@@ -328,9 +328,9 @@ public class TaggerTagMeWrapperWS extends AbstractLanguageAnalyser {
   }
 
   protected static class TagMeJsonData {
-    public double time = "";
+    public double time = 0.0;
     public boolean success = false;
-    public TagmeResult result = null;
+    public TagMeResult result = null;
   }
 
   // UTILITY methods
